@@ -816,7 +816,7 @@ function seededShuffle(items, seedText) {
   return output;
 }
 
-const questions = conceptBank.slice(0, 40).flatMap((concept, conceptIndex) =>
+const generatedQuestions = conceptBank.slice(0, 40).flatMap((concept, conceptIndex) =>
   concept.stems.map((stem, stemIndex) => {
     const id = conceptIndex * 5 + stemIndex + 1;
     const options = seededShuffle(
@@ -834,6 +834,464 @@ const questions = conceptBank.slice(0, 40).flatMap((concept, conceptIndex) =>
     };
   })
 );
+
+const scenarioQuestionSeeds = [
+  {
+    module: "Module 1: Land Use and Transportation",
+    concept: "Land use feedback",
+    stem: "A county proposes a new interchange at the urban fringe. The travel model shows lower regional delay, but the land use team warns that sewer extensions and cheaper highway access could shift growth away from adopted infill centers. What is the strongest planning response?",
+    correct: "Evaluate transportation and land use as linked scenarios, including induced development, VMT, infrastructure cost, and consistency with adopted growth policy.",
+    distractors: [
+      "Approve the interchange because modeled delay is lower, and treat land use as outside the transportation decision.",
+      "Reject all roadway improvements because any capacity project automatically violates planning principles.",
+      "Use only existing traffic counts because forecasts are not useful for long-range decisions."
+    ],
+    explanation: "The issue is not simply whether delay falls. The planner should test the land use feedback loop, fiscal impacts, accessibility, VMT, and policy consistency."
+  },
+  {
+    module: "Module 1: Land Use and Transportation",
+    concept: "Accessibility tradeoffs",
+    stem: "A mixed-use corridor rezoning reduces parking minimums and allows housing over retail. The traffic analysis predicts worse auto LOS at two intersections, but the accessibility analysis shows shorter average trip lengths and more households within walking distance of daily needs. Which conclusion is most defensible?",
+    correct: "The proposal may still advance transportation goals if the adopted goals value accessibility, mode shift, and reduced trip length rather than auto LOS alone.",
+    distractors: [
+      "The proposal must fail because any LOS decline means the transportation system performs worse.",
+      "The proposal must pass because land use benefits eliminate the need for safety analysis.",
+      "The analysis is invalid because accessibility cannot be compared with intersection operations."
+    ],
+    explanation: "Harder exam questions often test whether you can balance measures. LOS is one metric; accessibility and trip length can support a different policy conclusion."
+  },
+  {
+    module: "Module 1: Land Use and Transportation",
+    concept: "Access management",
+    stem: "A state highway through a small town has high crash rates near closely spaced driveways. Merchants oppose medians because they fear losing left-turn access. What is the best access management approach?",
+    correct: "Develop a corridor access plan with shared driveways, median openings at appropriate spacing, local circulation improvements, and stakeholder input.",
+    distractors: [
+      "Install a continuous raised median with no local consultation or replacement access.",
+      "Do nothing because property access always overrides through movement and safety.",
+      "Lower the posted speed only and avoid any driveway or median changes."
+    ],
+    explanation: "Access management balances safety, mobility, and property access. The best answer combines conflict reduction with feasible local access solutions."
+  },
+  {
+    module: "Module 1: Land Use and Transportation",
+    concept: "Parking and TDM",
+    stem: "A downtown employer wants to reduce peak-hour garage demand. Employees currently receive free parking, while transit passes require payroll deduction. Which package is most likely to change travel behavior without simply shifting parking spillover to neighborhoods?",
+    correct: "Price employee parking, offer equivalent commute benefits for transit/carpool/bike, manage curb parking, and monitor spillover.",
+    distractors: [
+      "Build more free parking because excess supply is the most reliable TDM strategy.",
+      "Eliminate all parking overnight without monitoring access, equity, or spillover effects.",
+      "Offer a transit brochure while keeping free parking unchanged."
+    ],
+    explanation: "The scenario tests incentives and disincentives together. Free parking can overwhelm weak TDM measures; curb management prevents spillover."
+  },
+  {
+    module: "Module 1: Land Use and Transportation",
+    concept: "Context-sensitive design",
+    stem: "A DOT standard arterial cross-section would remove mature street trees and widen lanes through a historic main street. Crash data show pedestrian risk, but speeds are already too high. What is the best context-sensitive response?",
+    correct: "Revisit design speed and cross-section choices to improve safety while fitting main street land use, pedestrian activity, and historic context.",
+    distractors: [
+      "Apply the standard suburban arterial design because uniformity is the main goal of CSS.",
+      "Ignore safety because historic context always outweighs transportation function.",
+      "Move directly to construction because public input is only needed for NEPA documents."
+    ],
+    explanation: "CSS is not anti-safety. It means solving the transportation problem in a way that fits context and community values."
+  },
+  {
+    module: "Module 1: Land Use and Transportation",
+    concept: "Corridor redevelopment",
+    stem: "A declining strip-commercial corridor has many curb cuts, low transit ridership, vacant parcels, and high pedestrian crashes. Which integrated strategy best reflects land use-transportation planning?",
+    correct: "Combine access management, safer crossings, transit-supportive redevelopment, parking reform, and local street connectivity.",
+    distractors: [
+      "Only widen the arterial because land use and pedestrian safety are separate from corridor planning.",
+      "Only upzone parcels because street design and access do not affect redevelopment outcomes.",
+      "Only add marketing for transit because physical access and land use are not relevant."
+    ],
+    explanation: "The best answer connects multiple levers. Corridor problems are often created by land use, access, street design, safety, and market conditions together."
+  },
+  {
+    module: "Module 2: Needs Assessment",
+    concept: "Problem definition",
+    stem: "Public officials ask for a bypass because downtown congestion is unpopular. Freight GPS data show trucks lose time at two signals, pedestrian crash risk is high downtown, and through traffic is only 18 percent of volume. What is the best next step?",
+    correct: "Define the underlying needs separately, including freight delay, safety, local access, and through-traffic share, before selecting a bypass solution.",
+    distractors: [
+      "Start bypass design because the public has already named the solution.",
+      "Use only the through-traffic percentage and ignore freight and pedestrian issues.",
+      "Reject all improvements because downtown congestion is mostly local traffic."
+    ],
+    explanation: "Needs assessment should not confuse a proposed solution with the problem. Multiple needs may call for a package of alternatives."
+  },
+  {
+    module: "Module 2: Needs Assessment",
+    concept: "Reliability vs average delay",
+    stem: "A commuter corridor has acceptable average travel time except during incidents, when queues spill back to a major interchange. A traditional LOS analysis ranks it low priority. Which additional measure best captures the issue?",
+    correct: "Travel time reliability or buffer time under recurring and non-recurring delay conditions.",
+    distractors: [
+      "Average daily traffic only, because reliability is not a transportation planning measure.",
+      "Pavement color, because the issue occurs only during incidents.",
+      "Residential density, because corridor operations cannot be measured."
+    ],
+    explanation: "Operations problems can be hidden by averages. Reliability measures capture variability and incident sensitivity."
+  },
+  {
+    module: "Module 2: Needs Assessment",
+    concept: "Equity and access",
+    stem: "A regional access analysis finds that total job accessibility improves under a highway package, but low-income zero-car households lose transit access because bus operating funds are shifted to roadway match. What is the key needs-assessment concern?",
+    correct: "Aggregate regional gains may mask distributional access losses for people with fewer travel choices.",
+    distractors: [
+      "The highway package must be best because total regional accessibility increases.",
+      "Transit access should be ignored because zero-car households generate fewer auto trips.",
+      "Equity can only be analyzed after the TIP is adopted."
+    ],
+    explanation: "This tests distribution, not just totals. Who benefits and who loses is central to equity-oriented needs assessment."
+  },
+  {
+    module: "Module 2: Needs Assessment",
+    concept: "Safety exposure",
+    stem: "A suburban arterial has few reported bicycle crashes, but field review shows no bike facilities, high speeds, and almost no cyclists. Advocates argue the low crash count reflects suppressed demand. What is the best planning interpretation?",
+    correct: "Low crash frequency alone may not indicate low risk when exposure is suppressed by unsafe conditions.",
+    distractors: [
+      "No bicycle safety need exists because crash history is the only valid safety measure.",
+      "The corridor should be removed from analysis because cyclists are not currently present.",
+      "Only motor vehicle delay matters because bicycles are not part of transportation planning."
+    ],
+    explanation: "Safety analysis should consider exposure, context, and risk factors, not only reported crash frequency."
+  },
+  {
+    module: "Module 2: Needs Assessment",
+    concept: "Data triangulation",
+    stem: "A bus corridor shows slow travel times in AVL data, high crowding in APC data, and many public comments about missed transfers. The model, however, shows little auto congestion. What should the planner conclude?",
+    correct: "The corridor has a transit reliability/capacity need even if auto congestion metrics are not severe.",
+    distractors: [
+      "There is no need because the regional model does not show auto congestion.",
+      "Public comments should replace all operations data.",
+      "The only valid improvement is adding general-purpose lanes."
+    ],
+    explanation: "Different modes need different data. Transit needs may be invisible in auto-focused congestion outputs."
+  },
+  {
+    module: "Module 2: Needs Assessment",
+    concept: "Asset management",
+    stem: "A region has funds for either a new arterial extension or rehabilitation of several structurally deficient bridges on evacuation routes. The extension scores higher on modeled delay reduction. What additional criterion is most important?",
+    correct: "State of good repair, risk, network criticality, and life-cycle consequences of bridge failure.",
+    distractors: [
+      "Only modeled delay because preservation is not a planning concern.",
+      "Only project length because longer projects are more regionally significant.",
+      "Only public preference because engineering condition should be excluded from planning."
+    ],
+    explanation: "Needs assessment includes asset condition and criticality. Delay reduction is not the only legitimate need."
+  },
+  {
+    module: "Module 3: System Planning and Analysis",
+    concept: "Model limitations",
+    stem: "A travel model predicts high ridership for a new BRT line, but the station-area plan still has large parking minimums, poor sidewalks, and disconnected parcels. What is the best technical caution?",
+    correct: "Ridership forecasts should be interpreted with land use, walk access, parking policy, and station design assumptions clearly tested.",
+    distractors: [
+      "The model output should be accepted without checking station access because models include every design detail.",
+      "The BRT should be rejected because parking minimums always make transit impossible.",
+      "Sidewalk connectivity is irrelevant because transit ridership depends only on in-vehicle speed."
+    ],
+    explanation: "Forecasts are only as good as assumptions. Access and land use around stations materially affect transit outcomes."
+  },
+  {
+    module: "Module 3: System Planning and Analysis",
+    concept: "Scenario planning",
+    stem: "A regional plan faces uncertainty about remote work, e-commerce freight, and climate-related disruptions. Which scenario framework is most useful?",
+    correct: "Compare plausible futures that vary travel behavior, land use, freight demand, funding, and resilience assumptions.",
+    distractors: [
+      "Use one baseline forecast and avoid discussing uncertainty with decision-makers.",
+      "Prepare scenarios only for graphics; keep project rankings identical in every scenario.",
+      "Ignore freight and climate because they are outside system planning."
+    ],
+    explanation: "Scenario planning is useful when uncertainty is material. It should test decisions under different plausible futures."
+  },
+  {
+    module: "Module 3: System Planning and Analysis",
+    concept: "TDM effectiveness",
+    stem: "A developer proposes a TDM plan for a large office campus: a website, bike racks, and a one-time employee email. The site is far from transit and provides abundant free parking. What is the strongest critique?",
+    correct: "The TDM package is unlikely to reduce SOV trips without stronger pricing, transit access, rideshare incentives, monitoring, and enforceable commitments.",
+    distractors: [
+      "The TDM package is sufficient because information alone usually changes peak commute behavior.",
+      "TDM is not applicable to development review.",
+      "Bike racks should be prohibited because they reduce parking supply."
+    ],
+    explanation: "A serious TDM plan aligns incentives, site design, monitoring, and enforcement. Weak informational measures are often insufficient."
+  },
+  {
+    module: "Module 3: System Planning and Analysis",
+    concept: "Freight and land use",
+    stem: "A city encourages warehouse redevelopment near a freeway but nearby neighborhoods report truck noise, curb conflicts, and school-route safety concerns. Which analysis is most appropriate?",
+    correct: "Evaluate freight access, truck routing, delivery time windows, curb management, safety, and land use compatibility together.",
+    distractors: [
+      "Use only household commute data because freight trips behave like work trips.",
+      "Ban all trucks citywide because freight access is not a planning objective.",
+      "Approve the warehouses if freeway LOS is acceptable, without evaluating local impacts."
+    ],
+    explanation: "Freight planning must balance goods movement with local access, safety, and land use compatibility."
+  },
+  {
+    module: "Module 3: System Planning and Analysis",
+    concept: "TSMO before capacity",
+    stem: "A freeway bottleneck is driven by crashes, lane-changing near an interchange, and poor incident clearance. A widening project is costly and environmentally difficult. What alternative should be evaluated before major capacity expansion?",
+    correct: "A TSMO package such as incident management, ramp metering, auxiliary lane/merge treatments, traveler information, and quick clearance.",
+    distractors: [
+      "No-build only, because operations strategies cannot improve freeway performance.",
+      "A new outer beltway, because incident-related delay cannot be managed.",
+      "Parking minimum reductions only, because freeway operations are unrelated to planning."
+    ],
+    explanation: "TSMO seeks better performance from the existing system and is often a lower-cost, faster alternative or complement."
+  },
+  {
+    module: "Module 3: System Planning and Analysis",
+    concept: "Mode choice assumptions",
+    stem: "A model run shows a large shift from driving to transit after a rail extension, but assumes no feeder bus improvements, no parking price changes, and unchanged station access. What should reviewers ask first?",
+    correct: "Whether the mode choice assumptions realistically represent access time, cost, service quality, parking, and transfer conditions.",
+    distractors: [
+      "Whether the rail line is shown in the correct color on the map.",
+      "Whether trip generation should be deleted from the model.",
+      "Whether all transit projects should be assumed to capture the same mode share."
+    ],
+    explanation: "Mode choice depends on relative generalized cost and access conditions. Implausible assumptions can overstate mode shift."
+  },
+  {
+    module: "Module 4: Evaluation and Public Policy",
+    concept: "Multi-criteria prioritization",
+    stem: "Project A has the highest benefit-cost ratio but worsens displacement risk. Project B has moderate travel benefits but closes a severe safety gap in a disadvantaged area. Project C is popular but unfunded and not ready. What is the best evaluation approach?",
+    correct: "Use transparent multi-criteria prioritization that reports tradeoffs, readiness, funding, safety, equity, and monetized benefits separately.",
+    distractors: [
+      "Select Project A automatically because BCA overrides all other criteria.",
+      "Select Project C automatically because popularity is the only implementation factor.",
+      "Drop equity and readiness because they are not transportation performance measures."
+    ],
+    explanation: "Hard policy questions rarely collapse to one metric. Good evaluation makes tradeoffs explicit."
+  },
+  {
+    module: "Module 4: Evaluation and Public Policy",
+    concept: "Cost effectiveness",
+    stem: "Two alternatives address the same arterial delay problem. One is a $90 million widening; the other is a $9 million package of signal priority, access consolidation, and targeted turn lanes with 70 percent of the delay benefit. Which conclusion is most reasonable?",
+    correct: "The lower-cost package may be more cost-effective and should be compared against goals, constraints, and residual needs.",
+    distractors: [
+      "The widening is automatically best because it produces the largest absolute delay reduction.",
+      "The lower-cost package must be rejected because it does not eliminate all delay.",
+      "Cost effectiveness is irrelevant in transportation system evaluation."
+    ],
+    explanation: "Evaluation asks how much benefit is achieved per dollar and whether the remaining problem is acceptable."
+  },
+  {
+    module: "Module 4: Evaluation and Public Policy",
+    concept: "Fiscal constraint",
+    stem: "An MPO wants to include a high-cost rail project in the fiscally constrained MTP. The project has no committed funds, uncertain local match, and optimistic value capture assumptions. What is the safest planning treatment?",
+    correct: "List it as illustrative or contingent until revenues are reasonably available and documented in the financial plan.",
+    distractors: [
+      "Include it as constrained because popular projects do not need revenue documentation.",
+      "Remove all transit projects because uncertain funding affects only rail projects.",
+      "Adopt it in the TIP first and find funding later."
+    ],
+    explanation: "Fiscal constraint requires reasonable revenue assumptions. Aspirational projects can be shown separately from constrained commitments."
+  },
+  {
+    module: "Module 4: Evaluation and Public Policy",
+    concept: "Performance targets",
+    stem: "A region adopted a goal to reduce serious injuries, but its project scoring gives most points to vehicle delay reduction and almost none to safety. What is the main problem?",
+    correct: "The prioritization criteria are misaligned with adopted performance goals and targets.",
+    distractors: [
+      "The safety goal is invalid because delay is easier to measure.",
+      "Targets should never influence project selection.",
+      "The scoring is acceptable if the final list is long enough."
+    ],
+    explanation: "Performance-based planning connects goals, measures, targets, investments, and monitoring."
+  },
+  {
+    module: "Module 4: Evaluation and Public Policy",
+    concept: "Distribution of benefits",
+    stem: "A toll lane project improves average corridor travel time, but the benefits primarily accrue to higher-income drivers while bus riders experience no improvement. What evaluation question is most important?",
+    correct: "How benefits, costs, and access changes are distributed across income groups and travel markets.",
+    distractors: [
+      "Whether the project improves the average enough to ignore distribution.",
+      "Whether bus riders can be removed from the analysis because they do not pay tolls.",
+      "Whether travel time should be measured only for the fastest vehicles."
+    ],
+    explanation: "Equity evaluation asks who benefits and who bears costs, not just whether the regional average improves."
+  },
+  {
+    module: "Module 4: Evaluation and Public Policy",
+    concept: "Public policy conflict",
+    stem: "A city has adopted Vision Zero, climate, and housing affordability goals. A proposed arterial widening reduces modeled delay but increases speeds, requires business relocations, and encourages lower-density edge growth. What should evaluation emphasize?",
+    correct: "Consistency with adopted policy goals across safety, emissions, displacement, accessibility, and land use, not delay alone.",
+    distractors: [
+      "Only the modeled delay reduction because adopted policy goals are not relevant to transportation projects.",
+      "Only the number of public comments supporting the project.",
+      "Only whether the project uses a familiar design standard."
+    ],
+    explanation: "The scenario tests policy consistency. A technically feasible project can still conflict with adopted goals."
+  },
+  {
+    module: "Module 5: Environmental Analysis",
+    concept: "Environmental justice",
+    stem: "A new arterial alternative avoids wetlands but requires relocating a low-income mobile home community and increases noise near a minority neighborhood. The no-build has ongoing safety problems. What is the best EJ response?",
+    correct: "Compare alternatives for disproportionate adverse effects, engage affected residents meaningfully, and seek avoidance, minimization, or mitigation while addressing safety needs.",
+    distractors: [
+      "Select the build alternative because avoiding wetlands automatically resolves environmental review.",
+      "Select no-build because any EJ impact makes all projects impossible.",
+      "Delay EJ analysis until after right-of-way acquisition."
+    ],
+    explanation: "EJ does not require ignoring other needs, but it does require identifying, avoiding/minimizing/mitigating disproportionate adverse impacts and engaging affected communities."
+  },
+  {
+    module: "Module 5: Environmental Analysis",
+    concept: "Indirect and cumulative impacts",
+    stem: "A bypass would reduce trucks downtown but also open a rural growth area near sensitive habitat. Several utility extensions and subdivisions are likely if it is built. Which environmental issue is most important?",
+    correct: "Indirect and cumulative effects from reasonably foreseeable development enabled by the transportation investment.",
+    distractors: [
+      "Only direct pavement footprint, because later development is never relevant.",
+      "Only downtown truck delay, because environmental analysis excludes land use.",
+      "Only construction staging, because operations impacts end after opening day."
+    ],
+    explanation: "Transportation investments can produce indirect land use effects and cumulative impacts beyond the right-of-way."
+  },
+  {
+    module: "Module 5: Environmental Analysis",
+    concept: "Planning and NEPA linkage",
+    stem: "During corridor planning, an agency eliminates all non-highway alternatives before documenting purpose and need or engaging affected communities. Later, NEPA review is challenged. What was the planning mistake?",
+    correct: "The process narrowed alternatives too early without a transparent purpose and need, environmental screening, or meaningful participation.",
+    distractors: [
+      "The agency considered alternatives too early; alternatives belong only after final design.",
+      "NEPA requires agencies to select the highway alternative before public involvement.",
+      "Purpose and need is unnecessary if the model shows congestion."
+    ],
+    explanation: "Planning can inform NEPA, but premature narrowing creates risk. Alternatives, purpose and need, and engagement must be credible."
+  },
+  {
+    module: "Module 5: Environmental Analysis",
+    concept: "Conformity and emissions",
+    stem: "An MPO in an ozone nonattainment area adds several capacity projects to the TIP. The projects are regionally significant but were not included in the latest emissions analysis. What is the key issue?",
+    correct: "Transportation conformity must be addressed before the plan/TIP can be found consistent with air quality requirements.",
+    distractors: [
+      "No issue exists because TIP amendments never affect air quality analysis.",
+      "The projects can proceed if local governments support them, regardless of conformity.",
+      "Conformity applies only to bicycle and pedestrian projects."
+    ],
+    explanation: "In nonattainment/maintenance areas, regionally significant transportation projects can trigger conformity requirements."
+  },
+  {
+    module: "Module 5: Environmental Analysis",
+    concept: "Mitigation hierarchy",
+    stem: "A preferred alignment affects a park, creates noise impacts, and changes access to a community center. Which mitigation sequence is most defensible?",
+    correct: "First avoid impacts where practicable, then minimize remaining impacts, then mitigate or compensate for unavoidable effects.",
+    distractors: [
+      "Skip avoidance because compensation is always sufficient.",
+      "Ignore access impacts because only natural resources require mitigation.",
+      "Wait until after construction to decide whether impacts occurred."
+    ],
+    explanation: "Mitigation is strongest when considered early and follows avoid-minimize-mitigate/compensate logic."
+  },
+  {
+    module: "Module 5: Environmental Analysis",
+    concept: "Resilience",
+    stem: "A coastal evacuation route has acceptable current LOS but is repeatedly flooded during high tides and storms. Which planning measure best captures the need?",
+    correct: "Vulnerability, redundancy, recovery time, and continuity of critical access under extreme-weather conditions.",
+    distractors: [
+      "Peak-hour auto delay only, because flooding is not a transportation performance issue.",
+      "Average annual traffic only, because evacuation routes do not need special analysis.",
+      "Parking occupancy, because coastal flooding primarily affects curb demand."
+    ],
+    explanation: "Resilience needs may not appear in ordinary LOS analysis. Criticality and vulnerability matter."
+  },
+  {
+    module: "Module 6: Implementation",
+    concept: "TIP readiness",
+    stem: "A project scores high in the long-range plan but lacks environmental clearance, local match, and right-of-way strategy. A lower-scoring safety project is fully designed and funded. Which is more appropriate for near-term TIP programming?",
+    correct: "The ready and funded safety project may be more appropriate for the TIP, while the other remains in longer-range development.",
+    distractors: [
+      "The highest long-range score must always be programmed first, regardless of readiness.",
+      "Neither project can be programmed because TIPs exclude safety improvements.",
+      "Readiness and funding should be ignored until after the TIP is adopted."
+    ],
+    explanation: "Implementation depends on readiness, eligibility, funding, and delivery, not only long-range policy score."
+  },
+  {
+    module: "Module 6: Implementation",
+    concept: "Institutional coordination",
+    stem: "A regional transit priority corridor crosses three cities, a county road, and a state highway. Each agency controls different signals, curb lanes, and funding sources. What is the biggest implementation need?",
+    correct: "Interagency agreements, clear lead responsibilities, funding commitments, and operations/maintenance roles.",
+    distractors: [
+      "A longer vision statement, because institutional roles are not part of implementation.",
+      "A single public meeting, because coordination ends after plan adoption.",
+      "Waiting for each agency to act independently without shared commitments."
+    ],
+    explanation: "Cross-jurisdiction projects often fail without institutional coordination and implementation ownership."
+  },
+  {
+    module: "Module 6: Implementation",
+    concept: "Public participation timing",
+    stem: "An agency completes project design, then holds a public meeting where residents identify a major school access problem created by the design. What is the implementation lesson?",
+    correct: "Public participation should occur early enough to influence alternatives, not only after key design decisions are made.",
+    distractors: [
+      "The residents' input should be ignored because technical design is complete.",
+      "Public participation is only for announcing construction schedules.",
+      "School access is not relevant to transportation implementation."
+    ],
+    explanation: "Meaningful participation is connected to decision points and can reveal implementation risks."
+  },
+  {
+    module: "Module 6: Implementation",
+    concept: "Monitoring and adaptive management",
+    stem: "A corridor plan implements bus lanes and parking changes. After opening, merchants report loading conflicts, bus speeds improve less than expected, and curb violations increase. What is the best next step?",
+    correct: "Use post-implementation monitoring to adjust curb rules, enforcement, signal priority, and loading management.",
+    distractors: [
+      "Declare the plan a failure and remove all bus priority immediately.",
+      "Ignore the data because monitoring is not part of implementation.",
+      "Stop collecting data because public complaints are sufficient."
+    ],
+    explanation: "Implementation should include monitoring and adjustment. Real-world operations often require adaptive management."
+  },
+  {
+    module: "Module 6: Implementation",
+    concept: "Funding eligibility",
+    stem: "A city wants to use a federal safety grant for streetscape elements that do not address the documented crash problem. What should the planner check first?",
+    correct: "Whether proposed elements are eligible, tied to the grant purpose, and supported by the safety analysis.",
+    distractors: [
+      "Whether the elements are attractive, because eligibility is checked only after reimbursement.",
+      "Whether another city used a similar design, regardless of grant rules.",
+      "Whether the project can be renamed to avoid eligibility requirements."
+    ],
+    explanation: "Implementation requires matching project scope to funding eligibility and documented need."
+  },
+  {
+    module: "Module 6: Implementation",
+    concept: "Plan consistency",
+    stem: "A project sponsor wants to add a new interchange directly to the TIP, but it is not in the adopted MTP and may affect air quality conformity. What is the best planning response?",
+    correct: "Check consistency with the MTP, fiscal constraint, public process, and conformity requirements before TIP inclusion.",
+    distractors: [
+      "Add it to the TIP immediately because the TIP can override the MTP.",
+      "Skip conformity because it applies only to completed projects.",
+      "Avoid public process because amendments are administrative only."
+    ],
+    explanation: "TIP programming must be consistent with the long-range plan and applicable federal planning requirements."
+  }
+];
+
+const scenarioQuestions = scenarioQuestionSeeds.map((question, index) => {
+  const options = seededShuffle(
+    [question.correct, ...question.distractors],
+    `scenario-${index}-${question.concept}`
+  );
+  return {
+    id: index + 1,
+    module: question.module,
+    concept: question.concept,
+    stem: question.stem,
+    options,
+    answerIndex: options.indexOf(question.correct),
+    explanation: question.explanation,
+    type: "scenario"
+  };
+});
+
+const questions = [...scenarioQuestions, ...generatedQuestions].map((question, index) => ({
+  ...question,
+  id: index + 1,
+  type: question.type || "concept"
+}));
 
 let selectedModule = "All modules";
 let submitted = false;
@@ -870,7 +1328,18 @@ function populateModuleFilter() {
 }
 
 function randomQuestions() {
-  return seededShuffle(filteredQuestions(), `${Date.now()}-${Math.random()}`).slice(0, setSize);
+  const pool = filteredQuestions();
+  const seed = `${Date.now()}-${Math.random()}`;
+  const scenarios = seededShuffle(pool.filter((question) => question.type === "scenario"), `${seed}-scenario`);
+  const concepts = seededShuffle(pool.filter((question) => question.type !== "scenario"), `${seed}-concept`);
+  const scenarioCount = Math.min(16, scenarios.length, setSize);
+  const selected = [...scenarios.slice(0, scenarioCount)];
+  const remaining = setSize - selected.length;
+  selected.push(...concepts.slice(0, remaining));
+  if (selected.length < setSize) {
+    selected.push(...scenarios.slice(scenarioCount, scenarioCount + setSize - selected.length));
+  }
+  return seededShuffle(selected, `${seed}-final`);
 }
 
 function renderSet() {
