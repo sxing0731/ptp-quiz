@@ -14,8 +14,8 @@
           <h1>Transportation Planning Concept Quiz</h1>
         </div>
         <div class="score-panel" aria-live="polite">
-          <span id="progressText">Question 1 / 200</span>
-          <strong id="scoreText">Score 0 / 0</strong>
+          <span id="progressText">20 random questions</span>
+          <strong id="scoreText">Not submitted</strong>
         </div>
       </section>
 
@@ -24,26 +24,16 @@
           <span>Module</span>
           <select id="moduleFilter"></select>
         </label>
-        <label>
-          <span>Question</span>
-          <select id="questionSelect"></select>
-        </label>
-        <button id="randomButton" type="button">Random</button>
+        <button id="randomButton" type="button">New Random Set</button>
         <button id="resetButton" type="button">Reset</button>
       </section>
 
-      <section class="question-panel" aria-live="polite">
-        <div class="question-meta">
-          <span id="moduleLabel"></span>
-          <span id="conceptLabel"></span>
-        </div>
-        <h2 id="questionText"></h2>
-        <form id="answerForm" class="answers"></form>
-        <div class="actions">
-          <button id="submitButton" type="button">Submit Answer</button>
-          <button id="nextButton" type="button">Next Question</button>
-        </div>
-        <div id="feedback" class="feedback" hidden></div>
+      <section class="quiz-actions" aria-label="Submit quiz">
+        <button id="submitButton" type="button">Submit 20 Answers</button>
+        <span id="completionText">Answered 0 / 20</span>
+      </section>
+
+      <section id="questionList" class="question-list" aria-live="polite">
       </section>
 
       <section class="sources">

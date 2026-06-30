@@ -835,26 +835,21 @@ const questions = conceptBank.slice(0, 40).flatMap((concept, conceptIndex) =>
   })
 );
 
-let currentQuestionId = 1;
 let selectedModule = "All modules";
 let submitted = false;
 let score = 0;
-let answered = 0;
+let currentSet = [];
+const setSize = 20;
 
 const elements = {
   moduleFilter: document.getElementById("moduleFilter"),
-  questionSelect: document.getElementById("questionSelect"),
   randomButton: document.getElementById("randomButton"),
   resetButton: document.getElementById("resetButton"),
   progressText: document.getElementById("progressText"),
   scoreText: document.getElementById("scoreText"),
-  moduleLabel: document.getElementById("moduleLabel"),
-  conceptLabel: document.getElementById("conceptLabel"),
-  questionText: document.getElementById("questionText"),
-  answerForm: document.getElementById("answerForm"),
+  completionText: document.getElementById("completionText"),
+  questionList: document.getElementById("questionList"),
   submitButton: document.getElementById("submitButton"),
-  nextButton: document.getElementById("nextButton"),
-  feedback: document.getElementById("feedback")
 };
 
 function filteredQuestions() {
@@ -862,10 +857,6 @@ function filteredQuestions() {
     return questions;
   }
   return questions.filter((question) => question.module === selectedModule);
-}
-
-function getQuestion(id) {
-  return questions.find((question) => question.id === id) || questions[0];
 }
 
 function populateModuleFilter() {
@@ -878,55 +869,71 @@ function populateModuleFilter() {
   });
 }
 
-function populateQuestionSelect() {
-  const visibleQuestions = filteredQuestions();
-  elements.questionSelect.innerHTML = "";
-  visibleQuestions.forEach((question) => {
-    const option = document.createElement("option");
-    option.value = String(question.id);
-    option.textContent = `Q${question.id}: ${question.concept}`;
-    elements.questionSelect.append(option);
-  });
-  if (!visibleQuestions.some((question) => question.id === currentQuestionId)) {
-    currentQuestionId = visibleQuestions[0].id;
-  }
-  elements.questionSelect.value = String(currentQuestionId);
+function randomQuestions() {
+  return seededShuffle(filteredQuestions(), `${Date.now()}-${Math.random()}`).slice(0, setSize);
 }
 
-function renderQuestion() {
-  const question = getQuestion(currentQuestionId);
+function renderSet() {
   submitted = false;
-  elements.progressText.textContent = `Question ${question.id} / ${questions.length}`;
-  elements.moduleLabel.textContent = question.module;
-  elements.conceptLabel.textContent = question.concept;
-  elements.questionText.textContent = question.stem;
-  elements.answerForm.innerHTML = "";
-  elements.feedback.hidden = true;
-  elements.feedback.removeAttribute("data-result");
+  score = 0;
+  currentSet = randomQuestions();
+  elements.questionList.innerHTML = "";
   elements.submitButton.disabled = false;
+  elements.progressText.textContent = `${currentSet.length} random questions from ${questions.length}`;
+  elements.scoreText.textContent = "Not submitted";
 
-  question.options.forEach((optionText, index) => {
-    const label = document.createElement("label");
-    label.className = "answer-option";
-    label.htmlFor = `answer-${index}`;
+  currentSet.forEach((question, questionIndex) => {
+    const article = document.createElement("article");
+    article.className = "question-panel";
+    article.dataset.questionId = String(question.id);
 
-    const input = document.createElement("input");
-    input.type = "radio";
-    input.name = "answer";
-    input.id = `answer-${index}`;
-    input.value = String(index);
+    const meta = document.createElement("div");
+    meta.className = "question-meta";
+    const number = document.createElement("span");
+    number.textContent = `Question ${questionIndex + 1}`;
+    const module = document.createElement("span");
+    module.textContent = question.module;
+    const concept = document.createElement("span");
+    concept.textContent = question.concept;
+    meta.append(number, module, concept);
 
-    const span = document.createElement("span");
-    span.textContent = `${optionLetters[index]}. ${optionText}`;
+    const heading = document.createElement("h2");
+    heading.textContent = question.stem;
 
-    label.append(input, span);
-    elements.answerForm.append(label);
+    const answerForm = document.createElement("form");
+    answerForm.className = "answers";
+    answerForm.dataset.questionId = String(question.id);
+
+    question.options.forEach((optionText, optionIndex) => {
+      const label = document.createElement("label");
+      label.className = "answer-option";
+      label.htmlFor = `q${question.id}-answer-${optionIndex}`;
+
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = `answer-${question.id}`;
+      input.id = `q${question.id}-answer-${optionIndex}`;
+      input.value = String(optionIndex);
+
+      const span = document.createElement("span");
+      span.textContent = `${optionLetters[optionIndex]}. ${optionText}`;
+
+      label.append(input, span);
+      answerForm.append(label);
+    });
+
+    const feedback = document.createElement("div");
+    feedback.className = "feedback";
+    feedback.hidden = true;
+
+    article.append(meta, heading, answerForm, feedback);
+    elements.questionList.append(article);
   });
-  updateScoreText();
+  updateCompletionText();
 }
 
-function selectedAnswerIndex() {
-  const selected = elements.answerForm.querySelector("input[name='answer']:checked");
+function selectedAnswerIndex(questionId) {
+  const selected = elements.questionList.querySelector(`input[name="answer-${questionId}"]:checked`);
   return selected ? Number(selected.value) : null;
 }
 
@@ -934,103 +941,80 @@ function submitAnswer() {
   if (submitted) {
     return;
   }
-  const question = getQuestion(currentQuestionId);
-  const selectedIndex = selectedAnswerIndex();
-  if (selectedIndex === null) {
-    elements.feedback.hidden = false;
-    elements.feedback.dataset.result = "wrong";
-    elements.feedback.innerHTML = "<strong>请选择一个答案。</strong>";
-    return;
-  }
-
   submitted = true;
-  answered += 1;
-  const isCorrect = selectedIndex === question.answerIndex;
-  if (isCorrect) {
-    score += 1;
-  }
-
-  [...elements.answerForm.querySelectorAll(".answer-option")].forEach((label, index) => {
-    const input = label.querySelector("input");
-    input.disabled = true;
-    if (index === question.answerIndex) {
-      label.classList.add("correct");
+  score = 0;
+  currentSet.forEach((question) => {
+    const panel = elements.questionList.querySelector(`[data-question-id="${question.id}"]`);
+    const selectedIndex = selectedAnswerIndex(question.id);
+    const isCorrect = selectedIndex === question.answerIndex;
+    if (isCorrect) {
+      score += 1;
     }
-    if (index === selectedIndex && !isCorrect) {
-      label.classList.add("incorrect");
+
+    [...panel.querySelectorAll(".answer-option")].forEach((label, index) => {
+      const input = label.querySelector("input");
+      input.disabled = true;
+      if (index === question.answerIndex) {
+        label.classList.add("correct");
+      }
+      if (selectedIndex !== null && index === selectedIndex && !isCorrect) {
+        label.classList.add("incorrect");
+      }
+    });
+
+    const feedback = panel.querySelector(".feedback");
+    feedback.hidden = false;
+    feedback.dataset.result = isCorrect ? "right" : "wrong";
+    if (selectedIndex === null) {
+      feedback.dataset.result = "wrong";
+      feedback.innerHTML = `
+        <strong>未作答。正确答案：${optionLetters[question.answerIndex]}</strong>
+        <div>${question.options[question.answerIndex]}</div>
+        <p>${question.explanation}</p>
+      `;
+    } else {
+      feedback.innerHTML = `
+        <strong>${isCorrect ? "Correct." : "Incorrect."} 正确答案：${optionLetters[question.answerIndex]}</strong>
+        <div>${question.options[question.answerIndex]}</div>
+        <p>${question.explanation}</p>
+      `;
     }
   });
 
   elements.submitButton.disabled = true;
-  elements.feedback.hidden = false;
-  elements.feedback.dataset.result = isCorrect ? "right" : "wrong";
-  elements.feedback.innerHTML = `
-    <strong>${isCorrect ? "Correct." : "Incorrect."} 正确答案：${optionLetters[question.answerIndex]}</strong>
-    <div>${question.options[question.answerIndex]}</div>
-    <p>${question.explanation}</p>
-  `;
-  updateScoreText();
-}
-
-function updateScoreText() {
-  elements.scoreText.textContent = `Score ${score} / ${answered}`;
-}
-
-function goToQuestion(questionId) {
-  currentQuestionId = questionId;
-  populateQuestionSelect();
-  renderQuestion();
-}
-
-function goToNextQuestion() {
-  const visibleQuestions = filteredQuestions();
-  const currentIndex = visibleQuestions.findIndex((question) => question.id === currentQuestionId);
-  const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % visibleQuestions.length : 0;
-  goToQuestion(visibleQuestions[nextIndex].id);
-}
-
-function goToRandomQuestion() {
-  const visibleQuestions = filteredQuestions();
-  const randomIndex = Math.floor(Math.random() * visibleQuestions.length);
-  goToQuestion(visibleQuestions[randomIndex].id);
+  elements.scoreText.textContent = `Score ${score} / ${currentSet.length}`;
+  elements.completionText.textContent = `Submitted ${currentSet.length} questions`;
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function resetScore() {
-  score = 0;
-  answered = 0;
-  renderQuestion();
+  renderSet();
+}
+
+function updateCompletionText() {
+  const answeredCount = currentSet.filter((question) => selectedAnswerIndex(question.id) !== null).length;
+  elements.completionText.textContent = `Answered ${answeredCount} / ${currentSet.length}`;
 }
 
 function bindEvents() {
   elements.moduleFilter.addEventListener("change", () => {
     selectedModule = elements.moduleFilter.value;
-    const firstQuestion = filteredQuestions()[0];
-    currentQuestionId = firstQuestion.id;
-    populateQuestionSelect();
-    renderQuestion();
+    renderSet();
   });
 
-  elements.questionSelect.addEventListener("change", () => {
-    goToQuestion(Number(elements.questionSelect.value));
-  });
-
-  elements.randomButton.addEventListener("click", goToRandomQuestion);
+  elements.randomButton.addEventListener("click", renderSet);
   elements.resetButton.addEventListener("click", resetScore);
   elements.submitButton.addEventListener("click", submitAnswer);
-  elements.nextButton.addEventListener("click", goToNextQuestion);
+  elements.questionList.addEventListener("change", updateCompletionText);
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !submitted) {
       event.preventDefault();
       submitAnswer();
     }
-    if (event.key === "ArrowRight") {
-      goToNextQuestion();
-    }
   });
 }
 
 populateModuleFilter();
-populateQuestionSelect();
 bindEvents();
-renderQuestion();
+renderSet();
