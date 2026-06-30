@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PTP Concept Quiz Bank</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="quiz-header" aria-label="Quiz overview">
+        <div>
+          <p class="eyebrow">PTP Practice</p>
+          <h1>Transportation Planning Concept Quiz</h1>
+        </div>
+        <div class="score-panel" aria-live="polite">
+          <span id="progressText">Question 1 / 200</span>
+          <strong id="scoreText">Score 0 / 0</strong>
+        </div>
+      </section>
+
+      <section class="toolbar" aria-label="Quiz controls">
+        <label>
+          <span>Module</span>
+          <select id="moduleFilter"></select>
+        </label>
+        <label>
+          <span>Question</span>
+          <select id="questionSelect"></select>
+        </label>
+        <button id="randomButton" type="button">Random</button>
+        <button id="resetButton" type="button">Reset</button>
+      </section>
+
+      <section class="question-panel" aria-live="polite">
+        <div class="question-meta">
+          <span id="moduleLabel"></span>
+          <span id="conceptLabel"></span>
+        </div>
+        <h2 id="questionText"></h2>
+        <form id="answerForm" class="answers"></form>
+        <div class="actions">
+          <button id="submitButton" type="button">Submit Answer</button>
+          <button id="nextButton" type="button">Next Question</button>
+        </div>
+        <div id="feedback" class="feedback" hidden></div>
+      </section>
+
+      <section class="sources">
+        <h2>Source Concepts</h2>
+        <p>
+          Built from the Transportation Planning Handbook topic structure, PTP refresher module topics,
+          and federal transportation planning concepts including 3-C planning, fiscal constraint,
+          TIP/MTP, TDM, TSMO, environmental justice, performance measures, and accessibility.
+        </p>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
